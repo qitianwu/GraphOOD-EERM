@@ -1,0 +1,179 @@
+import argparse
+import sys
+import os
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch_geometric.utils import to_undirected
+from torch_scatter import scatter
+
+from logger import Logger, SimpleLogger
+from dataset import load_nc_dataset
+from data_utils import normalize, gen_normalized_adjs, evaluate, evaluate_whole_graph, eval_acc, eval_rocauc, eval_f1, to_sparse_tensor, load_fixed_splits
+from parse import parse_method_base, parse_method_ours, parser_add_main_args
+
+# NOTE: for consistent data splits, see data_utils.rand_train_test_idx
+def fix_seed(seed):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+fix_seed(0)
+
+### Parse args ###
+parser = argparse.ArgumentParser(description='General Training Pipeline')
+parser_add_main_args(parser)
+args = parser.parse_args()
+print(args)
+
+device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+
+def get_dataset(dataset, ratio=None, sub_dataset=None):
+    ### Load and preprocess data ###
+    if dataset == 'twitch-e':
+        dataset = load_nc_dataset('twitch-e', sub_dataset)
+    elif dataset == 'fb100':
+        dataset = load_nc_dataset('fb100', sub_dataset)
+    elif dataset == 'elliptic':
+        dataset = load_nc_dataset('elliptic', sub_dataset)
+    else:
+        raise ValueError('Invalid dataname')
+
+    if len(dataset.label.shape) == 1:
+        dataset.label = dataset.label.unsqueeze(1)
+
+    # # get the splits for all runs
+    # if args.rand_split or args.dataset == 'ogbn-proteins':
+    #     split_idx_lst = [dataset.get_idx_split(train_prop=args.train_prop, valid_prop=args.valid_prop)
+    #                 for _ in range(args.runs)]
+    # else:
+    #     split_idx_lst = load_fixed_splits(args.dataset, args.sub_dataset)
+
+    dataset.n = dataset.graph['num_nodes']
+    # infer the number of classes for non one-hot and one-hot labels
+    dataset.c = max(dataset.label.max().item() + 1, dataset.label.shape[1])
+    dataset.d = dataset.graph['node_feat'].shape[1]
+
+    dataset.graph['edge_index'], dataset.graph['node_feat'] = \
+        dataset.graph['edge_index'], dataset.graph['node_feat']
+
+    return dataset
+
+if args.dataset == 'twitch-e':
+    twitch_sub_name = ['DE', 'ENGB', 'ES', 'FR', 'PTBR', 'RU', 'TW']
+    tr_subs, val_subs, te_subs = ['DE', 'ENGB'], ['ES', 'TW'], ['FR', 'PTBR', 'RU']
+    datasets_tr = [get_dataset(dataset='twitch-e', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
+    datasets_val = [get_dataset(dataset='twitch-e', sub_dataset=val_subs[i]) for i in range(len(val_subs))]
+    datasets_te = [get_dataset(dataset='twitch-e', sub_dataset=te_subs[i]) for i in range(len(te_subs))]
+elif args.dataset == 'fb100':
+    fc_sub_name = ['Penn94', 'Amherst41', 'Cornell5', 'Johns Hopkins55', 'Reed98', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2']
+    tr_subs, val_subs, te_subs = ['Johns Hopkins55', 'Cornell5'], ['Amherst41', 'Reed98'], ['Penn94', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2', 'Yale4', 'Virginia63', 'Texas80']
+    datasets_tr = [get_dataset(dataset='fb100', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
+    datasets_val = [get_dataset(dataset='fb100', sub_dataset=val_subs[i]) for i in range(len(val_subs))]
+    datasets_te = [get_dataset(dataset='fb100', sub_dataset=te_subs[i]) for i in range(len(te_subs))]
+elif args.dataset == 'elliptic':
+    tr_subs, val_subs, te_subs = [i for i in range(6, 11)], [i for i in range(11, 16)], [i for i in range(16, 49)]
+    datasets_tr = [get_dataset(dataset='elliptic', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
+    datasets_val = [get_dataset(dataset='elliptic', sub_dataset=val_subs[i]) for i in range(len(val_subs))]
+    datasets_te = [get_dataset(dataset='elliptic', sub_dataset=te_subs[i]) for i in range(len(te_subs))]
+else:
+    raise ValueError('Invalid dataname')
+
+dataset_tr = datasets_tr[0]
+dataset_val = datasets_val[0]
+print(f"Train num nodes {dataset_tr.n} | num classes {dataset_tr.c} | num node feats {dataset_tr.d}")
+print(f"Val num nodes {dataset_val.n} | num classes {dataset_val.c} | num node feats {dataset_val.d}")
+for i in range(len(te_subs)):
+    dataset_te = datasets_te[i]
+    print(f"Test {i} num nodes {dataset_te.n} | num classes {dataset_te.c} | num node feats {dataset_te.d}")
+
+### Load method ###
+if args.method == 'base':
+    model = parse_method_base(args, datasets_tr, device)
+else:
+    model = parse_method_ours(args, datasets_tr, device)
+
+# using rocauc as the eval function
+if args.rocauc or args.dataset in ('twitch-e', 'fb100', 'elliptic'):
+    criterion = nn.BCEWithLogitsLoss()
+    eval_func = eval_f1
+else:
+    criterion = nn.NLLLoss()
+    eval_func = eval_acc
+
+logger = Logger(args.runs, args)
+
+model.train()
+print('MODEL:', model)
+print('DATASET:', args.dataset)
+
+### Training loop ###
+for run in range(args.runs):
+    # split_idx = split_idx_lst[run]
+    # train_idx = split_idx['train'].to(device)
+    model.reset_parameters()
+    if args.method == 'base':
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    elif args.method == 'policy':
+        optimizer_gnn = torch.optim.AdamW(model.gnn.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        optimizer_aug = torch.optim.AdamW(model.gl.parameters(), lr=args.lr_a)
+    best_val = float('-inf')
+    for epoch in range(args.epochs):
+        model.train()
+        if args.method == 'base':
+            optimizer.zero_grad()
+            loss = model(datasets_tr, criterion)
+            loss.backward()
+            optimizer.step()
+        elif args.method == 'policy':
+            for m in range(args.T):
+                Var, Mean, Log_p = model(datasets_tr, criterion)
+                outer_loss = Var + args.beta * Mean
+                reward = Var.detach()
+                inner_loss = - reward * Log_p
+                if m == 0:
+                    optimizer_gnn.zero_grad()
+                    outer_loss.backward()
+                    optimizer_gnn.step()
+                optimizer_aug.zero_grad()
+                inner_loss.backward()
+                optimizer_aug.step()
+
+        accs, test_outs = evaluate_whole_graph(args, model, datasets_tr, datasets_val, datasets_te, eval_func)
+        logger.add_result(run, accs)
+
+        if epoch % args.display_step == 0:
+            if args.method in ['base', 'random']:
+                print(f'Epoch: {epoch:02d}, '
+                  f'Loss: {loss:.4f}, '
+                  f'Train: {100 * accs[0]:.2f}%, '
+                  f'Valid: {100 * accs[1]:.2f}%, ')
+                test_info = ''
+                for test_acc in accs[2:]:
+                    test_info += f'Test: {100 * test_acc:.2f}% '
+                print(test_info)
+            elif args.method in ['policy', 'gumbel']:
+                print(f'Epoch: {epoch:02d}, '
+                      f'Mean Loss: {Mean:.4f}, '
+                      f'Var Loss: {Var:.4f}, '
+                      f'Train: {100 * accs[0]:.2f}%, '
+                      f'Valid: {100 * accs[1]:.2f}%, ')
+                test_info = ''
+                for test_acc in accs[2:]:
+                    test_info += f'Test: {100 * test_acc:.2f}% '
+                print(test_info)
+
+    logger.print_statistics(run)
+
+### Save results ###
+results = logger.print_statistics()
+filename = f'./results/{args.dataset}.csv'
+print(f"Saving results to {filename}")
+with open(f"{filename}", 'a+') as write_obj:
+    # sub_dataset = f'{args.sub_dataset},' if args.sub_dataset else ''
+    log = f"{args.method}," + f"{args.gnn},"
+    for i in range(results.shape[1]):
+        r = results[:, i]
+        log += f"{r.mean():.3f} ± {r.std():.3f},"
+    write_obj.write(log + f"\n")
