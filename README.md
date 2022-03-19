@@ -1,8 +1,8 @@
 # GraphOOD-EERM
 
 Codes and datasets for [Handling Distribution Shifts on Graphs: An Invariance Perspective](https://arxiv.org/abs/2202.02466).
-This work focuses on distribution shifts on graph data and proposes a new approach ***Explore-to-Extrapolate Risk Minimization (EERM)*** for out-of-distribution generalization on graphs. 
-In our experiment, we consider three types of distribution shifts on graphs
+This work focuses on distribution shifts on graph data and proposes a new approach ***Explore-to-Extrapolate Risk Minimization (EERM)*** for out-of-distribution generalization. 
+In our experiment, we consider three types of distribution shifts
 
 - Artificial Transformation
 
