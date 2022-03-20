@@ -31,11 +31,7 @@ device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() e
 
 def get_dataset(dataset, ratio=None, sub_dataset=None):
     ### Load and preprocess data ###
-    if dataset == 'twitch-e':
-        dataset = load_nc_dataset('twitch-e', sub_dataset)
-    elif dataset == 'fb100':
-        dataset = load_nc_dataset('fb100', sub_dataset)
-    elif dataset == 'elliptic':
+    if dataset == 'elliptic':
         dataset = load_nc_dataset('elliptic', sub_dataset)
     else:
         raise ValueError('Invalid dataname')
@@ -43,15 +39,7 @@ def get_dataset(dataset, ratio=None, sub_dataset=None):
     if len(dataset.label.shape) == 1:
         dataset.label = dataset.label.unsqueeze(1)
 
-    # # get the splits for all runs
-    # if args.rand_split or args.dataset == 'ogbn-proteins':
-    #     split_idx_lst = [dataset.get_idx_split(train_prop=args.train_prop, valid_prop=args.valid_prop)
-    #                 for _ in range(args.runs)]
-    # else:
-    #     split_idx_lst = load_fixed_splits(args.dataset, args.sub_dataset)
-
     dataset.n = dataset.graph['num_nodes']
-    # infer the number of classes for non one-hot and one-hot labels
     dataset.c = max(dataset.label.max().item() + 1, dataset.label.shape[1])
     dataset.d = dataset.graph['node_feat'].shape[1]
 
@@ -60,19 +48,7 @@ def get_dataset(dataset, ratio=None, sub_dataset=None):
 
     return dataset
 
-if args.dataset == 'twitch-e':
-    twitch_sub_name = ['DE', 'ENGB', 'ES', 'FR', 'PTBR', 'RU', 'TW']
-    tr_subs, val_subs, te_subs = ['DE', 'ENGB'], ['ES', 'TW'], ['FR', 'PTBR', 'RU']
-    datasets_tr = [get_dataset(dataset='twitch-e', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
-    datasets_val = [get_dataset(dataset='twitch-e', sub_dataset=val_subs[i]) for i in range(len(val_subs))]
-    datasets_te = [get_dataset(dataset='twitch-e', sub_dataset=te_subs[i]) for i in range(len(te_subs))]
-elif args.dataset == 'fb100':
-    fc_sub_name = ['Penn94', 'Amherst41', 'Cornell5', 'Johns Hopkins55', 'Reed98', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2']
-    tr_subs, val_subs, te_subs = ['Johns Hopkins55', 'Cornell5'], ['Amherst41', 'Reed98'], ['Penn94', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2', 'Yale4', 'Virginia63', 'Texas80']
-    datasets_tr = [get_dataset(dataset='fb100', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
-    datasets_val = [get_dataset(dataset='fb100', sub_dataset=val_subs[i]) for i in range(len(val_subs))]
-    datasets_te = [get_dataset(dataset='fb100', sub_dataset=te_subs[i]) for i in range(len(te_subs))]
-elif args.dataset == 'elliptic':
+if args.dataset == 'elliptic':
     tr_subs, val_subs, te_subs = [i for i in range(6, 11)], [i for i in range(11, 16)], [i for i in range(16, 49)]
     datasets_tr = [get_dataset(dataset='elliptic', sub_dataset=tr_subs[i]) for i in range(len(tr_subs))]
     datasets_val = [get_dataset(dataset='elliptic', sub_dataset=val_subs[i]) for i in range(len(val_subs))]

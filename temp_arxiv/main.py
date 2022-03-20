@@ -31,15 +31,7 @@ device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() e
 
 def get_dataset(dataset, ratio=None, sub_dataset=None, year=None):
     ### Load and preprocess data ###
-    if dataset == 'twitch-e':
-        dataset = load_nc_dataset('twitch-e', sub_dataset)
-    elif dataset == 'fb100':
-        dataset = load_nc_dataset('fb100', sub_dataset)
-    elif dataset == 'reddit':
-        dataset = load_nc_dataset('reddit', sub_dataset)
-    elif dataset == 'elliptic':
-        dataset = load_nc_dataset('elliptic', sub_dataset)
-    elif dataset == 'ogb-arxiv':
+    if dataset == 'ogb-arxiv':
         dataset = load_nc_dataset('ogb-arxiv', year=year)
     else:
         raise ValueError('Invalid dataname')
@@ -48,7 +40,6 @@ def get_dataset(dataset, ratio=None, sub_dataset=None, year=None):
         dataset.label = dataset.label.unsqueeze(1)
 
     dataset.n = dataset.graph['num_nodes']
-    # infer the number of classes for non one-hot and one-hot labels
     dataset.c = max(dataset.label.max().item() + 1, dataset.label.shape[1])
     dataset.d = dataset.graph['node_feat'].shape[1]
 

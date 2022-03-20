@@ -43,15 +43,7 @@ def get_dataset(dataset, ratio=None, sub_dataset=None, gen_model=None):
     if len(dataset.label.shape) == 1:
         dataset.label = dataset.label.unsqueeze(1)
 
-    # # get the splits for all runs
-    # if args.rand_split or args.dataset == 'ogbn-proteins':
-    #     split_idx_lst = [dataset.get_idx_split(train_prop=args.train_prop, valid_prop=args.valid_prop)
-    #                 for _ in range(args.runs)]
-    # else:
-    #     split_idx_lst = load_fixed_splits(args.dataset, args.sub_dataset)
-
     dataset.n = dataset.graph['num_nodes']
-    # infer the number of classes for non one-hot and one-hot labels
     dataset.c = max(dataset.label.max().item() + 1, dataset.label.shape[1])
     dataset.d = dataset.graph['node_feat'].shape[1]
 

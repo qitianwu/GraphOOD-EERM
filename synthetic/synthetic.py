@@ -146,16 +146,12 @@ def gen_planetoid_dataset(name, model='gcn'):
     Generator_noise = nn.Linear(10, 10)
     for i in range(10):
         x_new = x
-        # Generator_y = GCN_gen(in_channels = c, hidden_channels = 32, out_channels = d, num_layers = 2)
-        # Generator_x = GCN_gen(in_channels=c, hidden_channels=10, out_channels=100, num_layers=2)
-        y_new = Generator_y(x, edge_index) #+ Generator_y(torch.ones_like(x).normal_(0, 0.1), edge_index)
+        y_new = Generator_y(x, edge_index)
         y_new = torch.argmax(y_new, dim=-1)
         label_new = F.one_hot(y_new, 10).squeeze(1).float()
         context_ = torch.zeros(x.size(0), 10)
         context_[:, i] = 1
-        #context_ = (i - 5) / 5 * torch.ones(x.size(0), 1)
-        # gen_input = torch.cat([label_new.float(), context_], dim=-1) # + i + torch.randn(label_.size())
-        x2 = Generator_x(label_new, edge_index) + Generator_noise(context_) #+ Generator_x(torch.ones_like(label_new).normal_(0, 0.1), edge_index)
+        x2 = Generator_x(label_new, edge_index) + Generator_noise(context_)
         x_new = torch.cat([x_new, x2], dim=1)
 
         with open(data_dir + '/{}-{}.pkl'.format(i, model), 'wb') as f:
@@ -191,16 +187,12 @@ def gen_amazon_dataset(name, model='gcn'):
     Generator_noise = nn.Linear(10, 10)
     for i in range(10):
         x_new = x
-        # Generator_y = GCN_gen(in_channels = c, hidden_channels = 32, out_channels = d, num_layers = 2)
-        # Generator_x = GCN_gen(in_channels=c, hidden_channels=10, out_channels=100, num_layers=2)
-        y_new = Generator_y(x, edge_index) #+ Generator_y(torch.ones_like(x).normal_(0, 0.1), edge_index)
+        y_new = Generator_y(x, edge_index)
         y_new = torch.argmax(y_new, dim=-1)
         label_new = F.one_hot(y_new, 10).squeeze(1).float()
         context_ = torch.zeros(x.size(0), 10)
         context_[:, i] = 1
-        #context_ = (i - 5) / 5 * torch.ones(x.size(0), 1)
-        # gen_input = torch.cat([label_new.float(), context_], dim=-1) # + i + torch.randn(label_.size())
-        x2 = Generator_x(label_new, edge_index) + Generator_noise(context_) #+ Generator_x(torch.ones_like(label_new).normal_(0, 0.1), edge_index)
+        x2 = Generator_x(label_new, edge_index) + Generator_noise(context_)
         x_new = torch.cat([x_new, x2], dim=1)
 
         with open(data_dir + '/{}-{}.pkl'.format(i, model), 'wb') as f:

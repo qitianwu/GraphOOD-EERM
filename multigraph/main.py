@@ -44,15 +44,7 @@ def get_dataset(dataset, ratio=None, sub_dataset=None):
     if len(dataset.label.shape) == 1:
         dataset.label = dataset.label.unsqueeze(1)
 
-    # # get the splits for all runs
-    # if args.rand_split or args.dataset == 'ogbn-proteins':
-    #     split_idx_lst = [dataset.get_idx_split(train_prop=args.train_prop, valid_prop=args.valid_prop)
-    #                 for _ in range(args.runs)]
-    # else:
-    #     split_idx_lst = load_fixed_splits(args.dataset, args.sub_dataset)
-
     dataset.n = dataset.graph['num_nodes']
-    # infer the number of classes for non one-hot and one-hot labels
     dataset.c = max(dataset.label.max().item() + 1, dataset.label.shape[1])
     dataset.d = dataset.graph['node_feat'].shape[1]
 
@@ -80,8 +72,6 @@ else:
 if args.dataset == 'fb100':
     dataset_tr = datasets_tr[0]
     dataset_val = datasets_val[0]
-# for i in range(len(tr_subs)):
-#     dataset_tr = datasets_tr[i]
 print(f"Train num nodes {dataset_tr.n} | num classes {dataset_tr.c} | num node feats {dataset_tr.d}")
 print(f"Val num nodes {dataset_val.n} | num classes {dataset_val.c} | num node feats {dataset_val.d}")
 for i in range(len(te_subs)):
@@ -112,8 +102,6 @@ print('DATASET:', args.dataset)
 
 ### Training loop ###
 for run in range(args.runs):
-    # split_idx = split_idx_lst[run]
-    # train_idx = split_idx['train'].to(device)
     model.reset_parameters()
     if args.method == 'base':
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
