@@ -5,7 +5,7 @@ This work focuses on distribution shifts on graph data and proposes a new approa
 
 ## Datasets
 
-In our experiment, we consider three types of distribution shifts. You can make a directory `.data` and download the datasets according the following details.
+In our experiment, we consider three types of distribution shifts. You can make a directory `./data` and download the datasets according the following details.
 
 - Artificial Transformation: We use Cora and Amazon-Photo datasets to construct spurious node features. The data construction script is provided in `./synthetic/synthetic.py`. The original datasets can easily accessed via Pytorch Geometric package. To download our preprocessed data, please go to the Google drive:
 
@@ -19,10 +19,11 @@ In our experiment, we consider three types of distribution shifts. You can make 
 
 More information will be updated.
 
-
+```bibtet
       @inproceedings{wu2022eerm,
       title = {Handling Distribution Shifts on Graphs: An Invariance Perspective},
       author = {Qitian Wu and Hengrui Zhang and Junchi Yan and David Wipf},
       booktitle = {International Conference on Learning Representations (ICLR)},
       year = {2022}
       }
+```
