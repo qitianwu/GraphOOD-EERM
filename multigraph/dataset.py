@@ -91,41 +91,13 @@ def load_nc_dataset(dataname, sub_dataname=''):
             print('Invalid sub_dataname, deferring to Penn94 graph')
             sub_dataname = 'Penn94'
         dataset = load_fb100_dataset(sub_dataname)
-    elif dataname == 'reddit':
-        if sub_dataname not in (1, 2, 3, 4, 5):
-            print('Invalid sub_dataname, deferring to graph1')
-            sub_dataname = 1
-        dataset = load_reddit_dataset(sub_dataname)
-    elif dataname == 'elliptic':
-        if sub_dataname not in range(0, 49):
-            print('Invalid sub_dataname, deferring to graph1')
-            sub_dataname = 0
-        dataset = load_elliptic_dataset(sub_dataname)
-    elif dataname == 'ogbn-proteins':
-        dataset = load_proteins_dataset()
-    elif dataname == 'deezer-europe':
-        dataset = load_deezer_dataset()
-    elif dataname == 'arxiv-year':
-        dataset = load_arxiv_year_dataset()
-    elif dataname == 'pokec':
-        dataset = load_pokec_mat()
-    elif dataname == 'snap-patents':
-        dataset = load_snap_patents_mat()
-    elif dataname == 'yelp-chi':
-        dataset = load_yelpchi_dataset()
-    elif dataname in ('ogbn-arxiv', 'ogbn-products'):
-        dataset = load_ogb_dataset(dataname)
-    elif dataname in  ('Cora', 'CiteSeer', 'PubMed'):
-        dataset = load_planetoid_dataset(dataname)
-    elif dataname in ('chameleon', 'cornell', 'film', 'squirrel', 'texas', 'wisconsin'):
-        dataset = load_geom_gcn_dataset(dataname)
     else:
         raise ValueError('Invalid dataname')
     return dataset
 
 def load_elliptic_dataset(lang):
     assert lang in range(0, 49), 'Invalid dataset'
-    result = pkl.load(open('../../data/elliptic/{}.pkl'.format(lang), 'rb'))
+    result = pkl.load(open('../data/elliptic/{}.pkl'.format(lang), 'rb'))
     A, label, features = result
     dataset = NCDataset(lang)
     edge_index = torch.tensor(A.nonzero(), dtype=torch.long)

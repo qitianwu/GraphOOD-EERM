@@ -58,18 +58,7 @@ def load_nc_dataset(dataname, sub_dataname=''):
     """ Loader for NCDataset
         Returns NCDataset
     """
-    if dataname == 'twitch-e':
-        # twitch-explicit graph
-        if sub_dataname not in ('DE', 'ENGB', 'ES', 'FR', 'PTBR', 'RU', 'TW'):
-            print('Invalid sub_dataname, deferring to DE graph')
-            sub_dataname = 'DE'
-        dataset = load_twitch_dataset(sub_dataname)
-    elif dataname == 'fb100':
-        if sub_dataname not in ('Penn94', 'Amherst41', 'Cornell5', 'Johns Hopkins55', 'Reed98', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2', 'Yale4', 'Virginia63', 'Texas80'):
-            print('Invalid sub_dataname, deferring to Penn94 graph')
-            sub_dataname = 'Penn94'
-        dataset = load_fb100_dataset(sub_dataname)
-    elif dataname == 'elliptic':
+    if dataname == 'elliptic':
         if sub_dataname not in range(0, 49):
             print('Invalid sub_dataname, deferring to graph1')
             sub_dataname = 0
@@ -80,7 +69,7 @@ def load_nc_dataset(dataname, sub_dataname=''):
 
 def load_elliptic_dataset(lang):
     assert lang in range(0, 49), 'Invalid dataset'
-    result = pkl.load(open('../../data/elliptic/{}.pkl'.format(lang), 'rb'))
+    result = pkl.load(open('../data/elliptic/{}.pkl'.format(lang), 'rb'))
     A, label, features = result
     dataset = NCDataset(lang)
     edge_index = torch.tensor(A.nonzero(), dtype=torch.long)

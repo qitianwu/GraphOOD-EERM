@@ -118,7 +118,7 @@ class GAT_gen(nn.Module):
 
 def gen_planetoid_dataset(name, model='gcn'):
     from torch_geometric.datasets import Planetoid
-    torch_dataset = Planetoid(root=f'../../data/Planetoid',
+    torch_dataset = Planetoid(root=f'../data/Planetoid',
                               name=name)
     data = torch_dataset[0]
 
@@ -130,7 +130,7 @@ def gen_planetoid_dataset(name, model='gcn'):
 
     label_ = F.one_hot(label, label.max() + 1).squeeze(1)
 
-    data_dir = '../../data/Planetoid/{}/gen'.format(name)
+    data_dir = '../data/Planetoid/{}/gen'.format(name)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
@@ -159,7 +159,7 @@ def gen_planetoid_dataset(name, model='gcn'):
 
 def gen_amazon_dataset(name, model='gcn'):
     from torch_geometric.datasets import Amazon
-    torch_dataset = Amazon(root=f'../../data/Amazon',
+    torch_dataset = Amazon(root=f'../data/Amazon',
                               name=name)
     data = torch_dataset[0]
 
@@ -171,7 +171,7 @@ def gen_amazon_dataset(name, model='gcn'):
 
     label_ = F.one_hot(label, label.max() + 1).squeeze(1)
 
-    data_dir = '../../data/Amazon/{}/gen'.format(name.capitalize())
+    data_dir = '../data/Amazon/{}/gen'.format(name)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 

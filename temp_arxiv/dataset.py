@@ -70,23 +70,7 @@ def load_nc_dataset(dataname, sub_dataname='', year=2020):
     """ Loader for NCDataset
         Returns NCDataset
     """
-    if dataname == 'twitch-e':
-        # twitch-explicit graph
-        if sub_dataname not in ('DE', 'ENGB', 'ES', 'FR', 'PTBR', 'RU', 'TW'):
-            print('Invalid sub_dataname, deferring to DE graph')
-            sub_dataname = 'DE'
-        dataset = load_twitch_dataset(sub_dataname)
-    elif dataname == 'fb100':
-        if sub_dataname not in ('Penn94', 'Amherst41', 'Cornell5', 'Johns Hopkins55', 'Reed98', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2', 'Yale4', 'Virginia63', 'Texas80'):
-            print('Invalid sub_dataname, deferring to Penn94 graph')
-            sub_dataname = 'Penn94'
-        dataset = load_fb100_dataset(sub_dataname)
-    elif dataname == 'elliptic':
-        if sub_dataname not in range(0, 49):
-            print('Invalid sub_dataname, deferring to graph1')
-            sub_dataname = 0
-        dataset = load_elliptic_dataset(sub_dataname)
-    elif dataname == 'ogb-arxiv':
+    if dataname == 'ogb-arxiv':
         dataset = load_ogb_arxiv(year_bound=year, proportion = 1.0)
     else:
         raise ValueError('Invalid dataname')
@@ -98,7 +82,7 @@ def take_second(element):
 def load_ogb_arxiv(year_bound = [2018, 2020], proportion = 1.0):
     import ogb.nodeproppred
 
-    dataset = ogb.nodeproppred.NodePropPredDataset(name='ogbn-arxiv', root='../../data')
+    dataset = ogb.nodeproppred.NodePropPredDataset(name='ogbn-arxiv', root='../data')
     graph = dataset.graph
 
     node_years = graph['node_year']
@@ -155,7 +139,7 @@ def load_ogb_arxiv(year_bound = [2018, 2020], proportion = 1.0):
 
 def load_elliptic_dataset(lang):
     assert lang in range(0, 49), 'Invalid dataset'
-    result = pkl.load(open('../../data/elliptic/{}.pkl'.format(lang), 'rb'))
+    result = pkl.load(open('../data/elliptic/{}.pkl'.format(lang), 'rb'))
     A, label, features = result
     dataset = NCDataset(lang)
     edge_index = torch.tensor(A.nonzero(), dtype=torch.long)

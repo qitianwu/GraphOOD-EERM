@@ -45,21 +45,6 @@ class NCDataset(object):
         self.graph = {}
         self.label = None
 
-    # def get_idx_split(self, split_type='random', train_prop=.5, valid_prop=.25):
-    #     """
-    #     train_prop: The proportion of dataset for train split. Between 0 and 1.
-    #     valid_prop: The proportion of dataset for validation split. Between 0 and 1.
-    #     """
-    #
-    #     if split_type == 'random':
-    #         ignore_negative = False if self.name == 'ogbn-proteins' else True
-    #         train_idx, valid_idx, test_idx = rand_train_test_idx(
-    #             self.label, train_prop=train_prop, valid_prop=valid_prop, ignore_negative=ignore_negative)
-    #         split_idx = {'train': train_idx,
-    #                      'valid': valid_idx,
-    #                      'test': test_idx}
-    #     return split_idx
-
     def __getitem__(self, idx):
         assert idx == 0, 'This dataset has only one graph'
         return self.graph, self.label
@@ -74,23 +59,7 @@ def load_nc_dataset(dataname, sub_dataname='', gen_model='gcn'):
     """ Loader for NCDataset
         Returns NCDataset
     """
-    if dataname == 'twitch-e':
-        # twitch-explicit graph
-        if sub_dataname not in ('DE', 'ENGB', 'ES', 'FR', 'PTBR', 'RU', 'TW'):
-            print('Invalid sub_dataname, deferring to DE graph')
-            sub_dataname = 'DE'
-        dataset = load_twitch_dataset(sub_dataname)
-    elif dataname == 'fb100':
-        if sub_dataname not in ('Penn94', 'Amherst41', 'Cornell5', 'Johns Hopkins55', 'Reed98', 'Caltech36', 'Berkeley13', 'Brown11', 'Columbia2', 'Yale4', 'Virginia63', 'Texas80'):
-            print('Invalid sub_dataname, deferring to Penn94 graph')
-            sub_dataname = 'Penn94'
-        dataset = load_fb100_dataset(sub_dataname)
-    elif dataname == 'elliptic':
-        if sub_dataname not in range(0, 49):
-            print('Invalid sub_dataname, deferring to graph1')
-            sub_dataname = 0
-        dataset = load_elliptic_dataset(sub_dataname)
-    elif dataname in  ('cora', 'amazon-photo'):
+    if dataname in  ('cora', 'amazon-photo'):
         dataset = load_synthetic_dataset(dataname, sub_dataname, gen_model)
     else:
         raise ValueError('Invalid dataname')
@@ -102,12 +71,12 @@ def load_synthetic_dataset(name, lang, gen_model='gcn'):
     assert lang in range(0, 10), 'Invalid dataset'
 
     if name == 'cora':
-        node_feat, y = pkl.load(open('../../data/Planetoid/cora/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
-        torch_dataset = Planetoid(root=f'../../data/Planetoid',
+        node_feat, y = pkl.load(open('../data/Planetoid/cora/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
+        torch_dataset = Planetoid(root=f'../data/Planetoid',
                               name='cora')
     elif name == 'amazon-photo':
-        node_feat, y = pkl.load(open('../../data/Amazon/Photo/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
-        torch_dataset = Amazon(root=f'../../data/Amazon',
+        node_feat, y = pkl.load(open('../data/Amazon/photo/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
+        torch_dataset = Amazon(root=f'../data/Amazon',
                                   name='Photo')
     data = torch_dataset[0]
 
@@ -127,7 +96,7 @@ def load_synthetic_dataset(name, lang, gen_model='gcn'):
 
 def load_elliptic_dataset(lang):
     assert lang in range(0, 49), 'Invalid dataset'
-    result = pkl.load(open('../../data/elliptic/{}.pkl'.format(lang), 'rb'))
+    result = pkl.load(open('../data/elliptic/{}.pkl'.format(lang), 'rb'))
     A, label, features = result
     dataset = NCDataset(lang)
     edge_index = torch.tensor(A.nonzero(), dtype=torch.long)
