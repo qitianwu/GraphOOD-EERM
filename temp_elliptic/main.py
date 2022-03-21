@@ -65,7 +65,7 @@ for i in range(len(te_subs)):
     print(f"Test {i} num nodes {dataset_te.n} | num classes {dataset_te.c} | num node feats {dataset_te.d}")
 
 ### Load method ###
-if args.method == 'base':
+if args.method == 'erm':
     model = parse_method_base(args, datasets_tr, device)
 else:
     model = parse_method_ours(args, datasets_tr, device)
@@ -89,20 +89,20 @@ for run in range(args.runs):
     # split_idx = split_idx_lst[run]
     # train_idx = split_idx['train'].to(device)
     model.reset_parameters()
-    if args.method == 'base':
+    if args.method == 'erm':
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    elif args.method == 'policy':
+    elif args.method == 'eerm':
         optimizer_gnn = torch.optim.AdamW(model.gnn.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         optimizer_aug = torch.optim.AdamW(model.gl.parameters(), lr=args.lr_a)
     best_val = float('-inf')
     for epoch in range(args.epochs):
         model.train()
-        if args.method == 'base':
+        if args.method == 'erm':
             optimizer.zero_grad()
             loss = model(datasets_tr, criterion)
             loss.backward()
             optimizer.step()
-        elif args.method == 'policy':
+        elif args.method == 'eerm':
             for m in range(args.T):
                 Var, Mean, Log_p = model(datasets_tr, criterion)
                 outer_loss = Var + args.beta * Mean
@@ -120,7 +120,7 @@ for run in range(args.runs):
         logger.add_result(run, accs)
 
         if epoch % args.display_step == 0:
-            if args.method in ['base', 'random']:
+            if args.method == 'erm':
                 print(f'Epoch: {epoch:02d}, '
                   f'Loss: {loss:.4f}, '
                   f'Train: {100 * accs[0]:.2f}%, '
@@ -129,7 +129,7 @@ for run in range(args.runs):
                 for test_acc in accs[2:]:
                     test_info += f'Test: {100 * test_acc:.2f}% '
                 print(test_info)
-            elif args.method in ['policy', 'gumbel']:
+            elif args.method == 'eerm':
                 print(f'Epoch: {epoch:02d}, '
                       f'Mean Loss: {Mean:.4f}, '
                       f'Var Loss: {Var:.4f}, '

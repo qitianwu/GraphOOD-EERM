@@ -40,8 +40,8 @@ def parser_add_main_args(parser):
     parser.add_argument('--dropout', type=float, default=0.)
     parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--gnn', type=str, default='gcn')
-    parser.add_argument('--method', type=str, default='base',
-                        choices=['base', 'policy'])
+    parser.add_argument('--method', type=str, default='erm',
+                        choices=['erm', 'eerm'])
     parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--cpu', action='store_true')
     parser.add_argument('--weight_decay', type=float, default=1e-3)
