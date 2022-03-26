@@ -31,7 +31,7 @@ def parser_add_main_args(parser):
     parser.add_argument('--sub_dataset', type=str, default='')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--gnn_gen', type=str, default='gcn', choices=['gcn', 'gat', 'sgc'])
+    parser.add_argument('--gnn_gen', type=str, default='sgc', choices=['gcn', 'gat', 'sgc'])
     parser.add_argument('--hidden_channels', type=int, default=32)
     parser.add_argument('--dropout', type=float, default=0.0)
     parser.add_argument('--lr', type=float, default=0.01)

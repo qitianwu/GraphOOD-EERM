@@ -157,11 +157,7 @@ print(f"Saving results to {filename}")
 with open(f"{filename}", 'a+') as write_obj:
     # sub_dataset = f'{args.sub_dataset},' if args.sub_dataset else ''
     log = f"{args.method}," + f"{args.gnn},"
-    for i in range(10):
-        r = results[:, i]
-        log += f"{r.mean():.3f} ± {r.std():.3f},"
-    write_obj.write(log + f"\n")
-    for i in range(10, results.shape[1]):
+    for i in range(results.shape[1]):
         r = results[:, i]
         log += f"{r.mean():.3f} ± {r.std():.3f},"
     write_obj.write(log + f"\n")
@@ -170,16 +166,3 @@ with open(f"{filename}", 'a+') as write_obj:
         for k in range(results.shape[0]):
             log += f"{results[k, i]:.4f} "
         write_obj.write(log + f"\n")
-
-with open(f"{filename}", 'a+') as write_obj:
-    for i in range(0, 3):
-        results_all, results_partial = results[:, i], results[:, i+11]
-        log = f"{results_all.mean():.4f} " + f"{results_all.std():.4f} " + \
-              f"{results_partial.mean():.4f} " + f"{results_partial.std():.4f} "
-        print(log)
-        write_obj.write(log + f"\n")
-    results_all, results_partial = results[:, 3:11], results[:, 14:]
-    log = f"{results_all.mean():.4f} " + f"{results_all.std():.4f} " + \
-          f"{results_partial.mean():.4f} " + f"{results_partial.std():.4f} "
-    print(log)
-    write_obj.write(log + f"\n")

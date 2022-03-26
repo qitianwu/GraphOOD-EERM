@@ -71,12 +71,12 @@ def load_synthetic_dataset(name, lang, gen_model='gcn'):
     assert lang in range(0, 10), 'Invalid dataset'
 
     if name == 'cora':
-        node_feat, y = pkl.load(open('../data/Planetoid/cora/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
-        torch_dataset = Planetoid(root=f'../data/Planetoid',
+        node_feat, y = pkl.load(open('../../data/Planetoid/cora/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
+        torch_dataset = Planetoid(root=f'../../data/Planetoid',
                               name='cora')
     elif name == 'amazon-photo':
-        node_feat, y = pkl.load(open('../data/Amazon/photo/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
-        torch_dataset = Amazon(root=f'../data/Amazon',
+        node_feat, y = pkl.load(open('../../data/Amazon/Photo/gen/{}-{}.pkl'.format(lang, gen_model), 'rb'))
+        torch_dataset = Amazon(root=f'../../data/Amazon',
                                   name='Photo')
     data = torch_dataset[0]
 

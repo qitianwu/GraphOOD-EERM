@@ -151,8 +151,8 @@ class Model(nn.Module):
             x, y = data.graph['node_feat'].to(self.device), data.label.to(self.device)
             edge_index = data.graph['edge_index'].to(self.device)
             for k in range(self.args.K):
-                edge_index_i, log_p = self.gl[i](edge_index, self.ns[i], self.args.num_sample, k)
-                out = self.gnn(x, edge_index_i)
+                edge_index_k, log_p = self.gl[i](edge_index, self.ns[i], self.args.num_sample, k)
+                out = self.gnn(x, edge_index_k)
                 if self.args.dataset == 'elliptic':
                     loss = self.sup_loss(y[data.mask], out[data.mask], criterion)
                 else:
