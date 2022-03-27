@@ -1,4 +1,3 @@
-
 # cora
 python main.py --method erm --dataset cora --gnn gcn --run 20 --lr 0.001 --device 1
 
