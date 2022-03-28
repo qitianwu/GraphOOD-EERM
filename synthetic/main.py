@@ -90,8 +90,6 @@ print('DATASET:', args.dataset)
 
 ### Training loop ###
 for run in range(args.runs):
-    # split_idx = split_idx_lst[run]
-    # train_idx = split_idx['train'].to(device)
     model.reset_parameters()
     if args.method == 'erm':
         optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -123,8 +121,6 @@ for run in range(args.runs):
                 optimizer_aug.step()
 
         accs, test_outs = evaluate_whole_graph(args, model, dataset_tr, dataset_val, datasets_te, eval_func)
-        # accs2, test_outs2 = evaluate_whole_graph(args, model, dataset_tr, dataset_val, datasets_te, eval_func, partial=True)
-        # logger.add_result(run, accs+accs2)
         logger.add_result(run, accs)
 
         if epoch % args.display_step == 0:
@@ -155,7 +151,6 @@ results = logger.print_statistics()
 filename = f'./results/{args.dataset}.csv'
 print(f"Saving results to {filename}")
 with open(f"{filename}", 'a+') as write_obj:
-    # sub_dataset = f'{args.sub_dataset},' if args.sub_dataset else ''
     log = f"{args.method}," + f"{args.gnn},"
     for i in range(results.shape[1]):
         r = results[:, i]

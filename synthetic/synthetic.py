@@ -128,8 +128,6 @@ def gen_planetoid_dataset(name, model='gcn'):
     c = label.max().item() + 1
     d = x.shape[1]
 
-    label_ = F.one_hot(label, label.max() + 1).squeeze(1)
-
     data_dir = '../data/Planetoid/{}/gen'.format(name)
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
@@ -168,8 +166,6 @@ def gen_amazon_dataset(name, model='gcn'):
     label = data.y
     c = label.max().item() + 1
     d = x.shape[1]
-
-    label_ = F.one_hot(label, label.max() + 1).squeeze(1)
 
     data_dir = '../data/Amazon/{}/gen'.format(name)
     if not os.path.exists(data_dir):
