@@ -32,12 +32,12 @@ print(args)
 
 device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
 
-def get_dataset(dataset, ratio=None, sub_dataset=None):
+def get_dataset(dataset, sub_dataset=None):
     ### Load and preprocess data ###
     if dataset == 'twitch-e':
-        dataset = load_nc_dataset('twitch-e', sub_dataset)
+        dataset = load_nc_dataset(args.data_dir, 'twitch-e', sub_dataset)
     elif dataset == 'fb100':
-        dataset = load_nc_dataset('fb100', sub_dataset)
+        dataset = load_nc_dataset(args.data_dir, 'fb100', sub_dataset)
     else:
         raise ValueError('Invalid dataname')
 

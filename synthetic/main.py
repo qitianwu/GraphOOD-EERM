@@ -31,12 +31,12 @@ print(args)
 
 device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
 
-def get_dataset(dataset, ratio=None, sub_dataset=None, gen_model=None):
+def get_dataset(dataset, sub_dataset=None, gen_model=None):
     ### Load and preprocess data ###
     if dataset == 'cora':
-        dataset = load_nc_dataset('cora', sub_dataset, gen_model)
+        dataset = load_nc_dataset(args.data_dir, 'cora', sub_dataset, gen_model)
     elif dataset == 'amazon-photo':
-        dataset = load_nc_dataset('amazon-photo', sub_dataset, gen_model)
+        dataset = load_nc_dataset(args.data_dir, 'amazon-photo', sub_dataset, gen_model)
     else:
         raise ValueError('Invalid dataname')
 

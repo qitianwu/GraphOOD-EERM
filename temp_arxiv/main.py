@@ -29,10 +29,10 @@ print(args)
 
 device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
 
-def get_dataset(dataset, ratio=None, sub_dataset=None, year=None):
+def get_dataset(dataset, year=None):
     ### Load and preprocess data ###
     if dataset == 'ogb-arxiv':
-        dataset = load_nc_dataset('ogb-arxiv', year=year)
+        dataset = load_nc_dataset(args.data_dir, 'ogb-arxiv', year=year)
     else:
         raise ValueError('Invalid dataname')
 

@@ -28,11 +28,14 @@ def parse_method_ours(args, dataset, n, c, d, device):
 
 def parser_add_main_args(parser):
     # dataset and protocol
-    parser.add_argument('--dataset', type=str, default='twitch-e')
+    parser.add_argument('--data_dir', type=str, default='../data') # need to be specified
+    parser.add_argument('--dataset', type=str, default='cora')
     parser.add_argument('--sub_dataset', type=str, default='')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
     parser.add_argument('--gnn_gen', type=str, default='gcn', choices=['gcn', 'gat', 'sgc'])
+    parser.add_argument('--rocauc', action='store_true',
+                        help='set the eval function to rocauc')
 
     # model
     parser.add_argument('--hidden_channels', type=int, default=32)

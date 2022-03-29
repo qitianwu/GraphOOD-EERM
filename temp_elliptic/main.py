@@ -29,10 +29,10 @@ print(args)
 
 device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
 
-def get_dataset(dataset, ratio=None, sub_dataset=None):
+def get_dataset(dataset, sub_dataset=None):
     ### Load and preprocess data ###
     if dataset == 'elliptic':
-        dataset = load_nc_dataset('elliptic', sub_dataset)
+        dataset = load_nc_dataset(args.data_dir, 'elliptic', sub_dataset)
     else:
         raise ValueError('Invalid dataname')
 
