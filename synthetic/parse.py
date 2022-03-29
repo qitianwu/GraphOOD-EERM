@@ -33,7 +33,8 @@ def parser_add_main_args(parser):
     parser.add_argument('--sub_dataset', type=str, default='')
     parser.add_argument('--device', type=int, default=0,
                         help='which gpu to use if any (default: 0)')
-    parser.add_argument('--gnn_gen', type=str, default='gcn', choices=['gcn', 'gat', 'sgc'])
+    parser.add_argument('--gnn_gen', type=str, default='gcn', choices=['gcn', 'gat', 'sgc'],
+                        help='random initialized gnn for data generation')
     parser.add_argument('--rocauc', action='store_true',
                         help='set the eval function to rocauc')
 
@@ -42,7 +43,7 @@ def parser_add_main_args(parser):
     parser.add_argument('--dropout', type=float, default=0.0)
     parser.add_argument('--gnn', type=str, default='gcn')
     parser.add_argument('--method', type=str, default='erm',
-                        choices=['erm', 'eerm'])
+                        choices=['erm', 'eerm'], help='gnn backbone')
     parser.add_argument('--num_layers', type=int, default=2,
                         help='number of layers for deep methods')
     parser.add_argument('--no_bn', action='store_true', help='do not use batchnorm')
@@ -81,5 +82,5 @@ def parser_add_main_args(parser):
     parser.add_argument('--beta', type=float, default=1.0,
                         help='weight for mean of risks from multiple domains')
     parser.add_argument('--lr_a', type=float, default=0.005,
-                        help='learning rate for graph learner with graph edit')
+                        help='learning rate for graph edit model')
 
