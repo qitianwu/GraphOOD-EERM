@@ -1,6 +1,6 @@
 # GraphOOD-EERM
 
-Codes and datasets for ICLR2022 paper [Handling Distribution Shifts on Graphs: An Invariance Perspective](https://arxiv.org/abs/2202.02466).
+Codes and datasets for ICLR2022 paper [Handling Distribution Shifts on Graphs: An Invariance Perspective](https://arxiv.org/abs/2202.02466). For tutorial on this work, one can read this Chinese [Blog](https://zhuanlan.zhihu.com/p/580112987). We will release an English version soon.
 
 This work focuses on distribution shifts on graph data, especially node-level prediction tasks (i.e., samples have inter-dependence induced by a large graph), and proposes a new approach ***Explore-to-Extrapolate Risk Minimization (EERM)*** for out-of-distribution generalization. 
 
